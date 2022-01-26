@@ -55,6 +55,10 @@ io.on('connection', socket => {
   let user: string | undefined;
   console.log('connected');
   socket.onAny((message, data: UserData) => {
+    if (!data) {
+      console.error(`Recived ${message} without data`)
+      return;
+    }
     console.log(`Recived ${message} from ${data.user}`)
     socket.to(data.room).emit(message, data);
     // join the room if not already
@@ -67,9 +71,10 @@ io.on('connection', socket => {
   })
 
   socket.on('disconnect', reason => {
-    console.log(`Recived disconect from ${user}`)
+    console.log(`Recived disconect from ${user} ${room}`)
     if (room) {
       io.to(room).emit('left', { user: user });
+      console.log(`send ${user} user had left`)
     }
   })
 });
