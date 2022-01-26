@@ -23,6 +23,9 @@ export default [{
       targets: [{
         src: 'public/index.html',
         dest: `../_dist/public/`,
+      },{
+        src: 'public/game.html',
+        dest: `../_dist/public/`,
 
       }
       ]

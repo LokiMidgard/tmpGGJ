@@ -206,14 +206,20 @@ class Game extends Engine {
    */
   constructor() {
     super();
-    const userName = Math.random().toString();
+    const randomName = Math.random().toString();
+
+    const nameRegex = /user=(?<value>[^&]*)/
+    const roomRegex = /room=(?<value>[^&]*)/
+    const name = nameRegex.exec(location.search)?.groups!['value'];
+    const room = roomRegex.exec(location.search)?.groups!['value'];
+
 
 
     this.userData = {
-      user: userName,
-      room: location.search ?? 'myRoom'
+      user: name ?? randomName,
+      room: room ?? 'MyRoom'
     };
-    this.player = this.createPlayerForUser(userName);
+    this.player = this.createPlayerForUser(this.userData.user);
   }
 
   initialize() {

@@ -2,6 +2,7 @@ import express, { } from 'express';
 import path from 'path';
 import socket from 'socket.io';
 import http from "http";
+import { debug } from 'console';
 
 
 
@@ -50,6 +51,8 @@ if (env == "development") {
 var httpServer = new http.Server(app);
 const io = new socket.Server(httpServer);
 
+const debugRooms: Record<string, { users: number, state: any } | undefined> = {}
+
 io.on('connection', socket => {
   let room: string | undefined;
   let user: string | undefined;
@@ -67,14 +70,65 @@ io.on('connection', socket => {
       user = data.user;
       console.log(`Join ${data.user} in ${data.room}`)
       socket.join(data.room);
+      /// DEBUG CODE BEGIN
+      if (room.startsWith('debug')) {
+        console.log("Is debug room prepare persistant state")
+        const debugRoom = debugRooms[room];
+        if (debugRoom) {
+          console.log("Found old debugRoom", debugRoom)
+
+          if (debugRoom.users === 0 && debugRoom.state) {
+            console.log("Transmit old state")
+            io.to(room).emit('gameState', debugRoom.state)
+          }
+          debugRoom.users += 1
+        } else {
+          debugRooms[room] = { users: 1, state: undefined }
+          console.log("No debug state, request one...");
+          io.to(room).emit('requestGameState', {})
+
+        }
+      }
+      /// DEBUG CODE END
+
+    }
+
+    /// DEBUG CODE BEGIN
+    const debugRoom = debugRooms[data.room];
+    if (debugRoom) {
+      if (message == "move") {
+        console.log("Ask gamestate")
+        io.to(data.room).emit('requestGameState', {})
+
+      }
+    }
+    /// DEBUG CODE END
+  });
+
+  /// DEBUG CODE BEGIN
+  socket.on('gameState', (data: UserData) => {
+    if (room) {
+      const debugRoom = debugRooms[room];
+      if (debugRoom) {
+        console.log("Save debug state")
+
+        debugRoom.state = data
+      }
     }
   })
+  /// DEBUG CODE END
 
   socket.on('disconnect', reason => {
     console.log(`Recived disconect from ${user} ${room}`)
     if (room) {
       io.to(room).emit('left', { user: user });
       console.log(`send ${user} user had left`)
+      /// DEBUG CODE BEGIN
+      const debugRoom = debugRooms[room];
+      if (debugRoom) {
+        debugRoom.users -= 1;
+      }
+      /// DEBUG CODE END
     }
   })
 });

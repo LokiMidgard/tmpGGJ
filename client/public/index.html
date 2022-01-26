@@ -1,11 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rollup Template</title>
+    <title>Robo Garden Loby</title>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
 </head>
+
 <body>
-    <script src="./bundle.js"></script>
+    <main class="container">
+        <article>
+
+            <head>
+                <h1>Robo Garden</h1>
+            </head>
+            <form method="get" action="game.html" onsubmit="return check(event)">
+                <label>
+                    User Name
+                    <input type="text" id="user" name="user" placeholder="Gib deinen Namen ein...">
+                </label>
+                <label>
+                    Raum
+                    <input type="text" id="room" name="room" placeholder="In welchem raum willst du spielen">
+                </label>
+                <input type="submit">
+            </form>
+        </article>
+    </main>
+    <script>
+        function check() {
+            const nameInput = document.getElementById('user');
+            const roomInput = document.getElementById('room');
+            if (nameInput?.value && roomInput?.value)
+                return true;
+                alert('Nutzername UND Raum bitte :)')
+            return false;
+        }
+    </script>
 </body>
+
 </html>
