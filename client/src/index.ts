@@ -222,104 +222,106 @@ class Game extends Engine {
 
     // this.add(this.player);
 
-    const communication = new Communication(this.userData, () => {
-      const state: GameState = {
-        positions: {}
-      };
-
-      for (const player of this.getPlayers()) {
-        state.positions[player.user] =
-        {
-          position: {
-            x: player.pos.x,
-            y: player.pos.y
-          }
-        }
-      };
-      // .reduce((p,v)=>{},state.positions)
-
-      return state;
-    },
-      () => this.getPlayers().length,
-      (playerName) => this.players[playerName] != undefined);
-
-
-
-    communication.register('AddPlayer', data => {
-      this.createPlayerForUser(data.player);
-    })
-    communication.register('RemovePlayer', data => {
-      console.debug('Remove player', data)
-      const player = this.players[data.player];
-      if (player) {
-        this.remove(player)
-        delete this.players[data.player];
-      }
-    })
-
-
-    communication.register('NewTurn', data => {
-      console.debug('Recived New Turn', data)
-      for (let index = 0; index < data.moves.length; index++) {
-
-        const move = data.moves[index];
-        const player = this.getPlayer(move.player) ?? this.createPlayerForUser(move.player);
-        player.pos.x = move.x;
-        player.pos.y = move.y;
-      }
-    })
-
-    communication.register('RecivedGameState', data => {
-      console.debug('Recived Game State', data)
-      const playerNames = Object.keys(data.state.positions);
-      for (let index = 0; index < playerNames.length; index++) {
-        const playerName = playerNames[index];
-        const postition = data.state.positions[playerName].position;
-        const player = this.players[playerName] ?? this.createPlayerForUser(playerName);
-        player.pos.x = postition.x;
-        player.pos.y = postition.y;
-      }
-
-    })
-
-    communication.requestGameState();
 
     const loader = new Loader();
     loader.addResource(Resources.Sword);
     this.start(loader).then(() => {
       console.log(EX_VERSION);
+
+
+      const communication = new Communication(this.userData, () => {
+        const state: GameState = {
+          positions: {}
+        };
+
+        for (const player of this.getPlayers()) {
+          state.positions[player.user] =
+          {
+            position: {
+              x: player.pos.x,
+              y: player.pos.y
+            }
+          }
+        };
+        // .reduce((p,v)=>{},state.positions)
+
+        return state;
+      },
+        () => this.getPlayers().length,
+        (playerName) => this.players[playerName] != undefined);
+
+
+
+      communication.register('AddPlayer', data => {
+        this.createPlayerForUser(data.player);
+      })
+      communication.register('RemovePlayer', data => {
+        console.debug('Remove player', data)
+        const player = this.players[data.player];
+        if (player) {
+          this.remove(player)
+          delete this.players[data.player];
+        }
+      })
+
+
+      communication.register('NewTurn', data => {
+        console.debug('Recived New Turn', data)
+        for (let index = 0; index < data.moves.length; index++) {
+
+          const move = data.moves[index];
+          const player = this.getPlayer(move.player) ?? this.createPlayerForUser(move.player);
+          player.pos.x = move.x;
+          player.pos.y = move.y;
+        }
+      })
+
+      communication.register('RecivedGameState', data => {
+        console.debug('Recived Game State', data)
+        const playerNames = Object.keys(data.state.positions);
+        for (let index = 0; index < playerNames.length; index++) {
+          const playerName = playerNames[index];
+          const postition = data.state.positions[playerName].position;
+          const player = this.players[playerName] ?? this.createPlayerForUser(playerName);
+          player.pos.x = postition.x;
+          player.pos.y = postition.y;
+        }
+
+      })
+
+      communication.requestGameState();
+
+      this.on('preupdate', e => {
+        const keys = this.input.keyboard.getKeys();
+        const speed = 20;
+        let didMove = false;
+        const targetPost = { x: this.player.pos.x, y: this.player.pos.y };
+
+        if (keys.includes(Input.Keys.ArrowRight)) {
+          targetPost.x = this.player.pos.x + speed;
+          didMove = true;
+        }
+        if (keys.includes(Input.Keys.ArrowLeft)) {
+          targetPost.x = this.player.pos.x - speed;
+          didMove = true;
+        }
+        if (keys.includes(Input.Keys.ArrowDown)) {
+          targetPost.y = this.player.pos.y + speed;
+          didMove = true;
+        }
+        if (keys.includes(Input.Keys.ArrowUp)) {
+          targetPost.y = this.player.pos.y - speed;
+          didMove = true;
+        }
+        if (didMove) {
+          communication.submitMove(
+            targetPost
+          )
+
+        }
+      })
+
     });
-
-    this.on('preupdate', e => {
-      const keys = this.input.keyboard.getKeys();
-      const speed = 20;
-      let didMove = false;
-      const targetPost = { x: this.player.pos.x, y: this.player.pos.y };
-
-      if (keys.includes(Input.Keys.ArrowRight)) {
-        targetPost.x = this.player.pos.x + speed;
-        didMove = true;
-      }
-      if (keys.includes(Input.Keys.ArrowLeft)) {
-        targetPost.x = this.player.pos.x - speed;
-        didMove = true;
-      }
-      if (keys.includes(Input.Keys.ArrowDown)) {
-        targetPost.y = this.player.pos.y + speed;
-        didMove = true;
-      }
-      if (keys.includes(Input.Keys.ArrowUp)) {
-        targetPost.y = this.player.pos.y - speed;
-        didMove = true;
-      }
-      if (didMove) {
-        communication.submitMove(
-          targetPost
-        )
-
-      }
-    })
-
 
   }
 
