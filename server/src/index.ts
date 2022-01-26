@@ -7,6 +7,7 @@ import http from "http";
 
 
 var env = process.env.NODE_ENV || 'development';
+console.log(`Running in ${env} enviroment`)
 if (env == "development") {
   require('dotenv').config({ path: '../.env' })
 }
@@ -25,6 +26,26 @@ type UserData = {
 
 const app = express();
 app.set("port", PORT);
+
+
+if (env == "development") {
+
+  const livereload = require("livereload");
+  const connectLivereload = require("connect-livereload");
+  // open livereload high port and start to watch public directory for changes
+  const liveReloadServer = livereload.createServer();
+  liveReloadServer.watch(path.join(__dirname, '../_dist/public'));
+  // ping browser on Express boot, once browser has reconnected and handshaken
+  liveReloadServer.server.once("connection", () => {
+    setTimeout(() => {
+      liveReloadServer.refresh("/");
+    }, 100);
+  });
+
+  console.warn("live reload activated")
+  // monkey patch every served HTML so they know of changes
+  app.use(connectLivereload());
+}
 
 var httpServer = new http.Server(app);
 const io = new socket.Server(httpServer);

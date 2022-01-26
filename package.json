@@ -9,12 +9,16 @@
   },
   "scripts": {
     "build": "npm run build -ws",
-    "start": "node _dist/index.js"
+    "start": "node _dist/index.js",
+    "dev": "concurrently \"npm run dev -w client\" \"npm run dev:build -w server\" \"npm run dev:serv -w server\""
   },
   "workspaces": [
     "server",
     "client"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.0.0"
+  }
 }

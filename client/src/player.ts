@@ -29,6 +29,6 @@ export class Player extends Actor {
       text: `User: ${this._user}`,
       font: new Font({ size: 25 })
     })
-    this.graphics.add(text);
+     this.graphics.add(text);
   }
 }

@@ -4,10 +4,7 @@
   "description": "GGJ 2022",
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -c -f umd -w",
-    "test": "npm run build && ex-test -d ./public -t ./test/test.js",
-    "start": "npm-run-all --parallel server watch",
-    "server": "serve public"
+    "dev": "rollup -c -f umd -w"
   },
   "license": "MIT",
   "devDependencies": {
