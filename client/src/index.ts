@@ -1,8 +1,8 @@
-import { Engine, EX_VERSION, Loader } from "excalibur";
+import { Engine, EX_VERSION, Loader, Input } from "excalibur";
 import { Player } from "./player";
 import { Resources } from "./resources";
 import ioclient, { io } from "socket.io-client";
-import { Keys } from "excalibur/build/dist/Input";
+
 
 
 
@@ -193,19 +193,20 @@ class Game extends Engine {
       const speed = 20;
       let didMove = false;
       const targetPost = { x: player.pos.x, y: player.pos.y };
-      if (keys.includes("ArrowRight")) {
+
+      if (keys.includes(Input.Keys.ArrowRight)) {
         targetPost.x = player.pos.x + speed;
         didMove = true;
       }
-      if (keys.includes("ArrowLeft")) {
+      if (keys.includes(Input.Keys.ArrowLeft)) {
         targetPost.x = player.pos.x - speed;
         didMove = true;
       }
-      if (keys.includes("ArrowDown")) {
+      if (keys.includes(Input.Keys.ArrowDown)) {
         targetPost.y = player.pos.y + speed;
         didMove = true;
       }
-      if (keys.includes("ArrowUp")) {
+      if (keys.includes(Input.Keys.ArrowUp)) {
         targetPost.y = player.pos.y - speed;
         didMove = true;
       }
